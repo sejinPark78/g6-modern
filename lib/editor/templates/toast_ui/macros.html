@@ -1,0 +1,89 @@
+{% macro head() -%}
+<!-- Toast UI Editor CDN & Style -->
+<link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+<script>
+    let toastEditors = {};
+
+    function getEditorContent(id) {
+        if (toastEditors[id]) {
+            return toastEditors[id].getHTML();
+        }
+        return document.getElementById(id).value;
+    }
+
+    function setEditorContent(id, content) {
+        if (toastEditors[id]) {
+            toastEditors[id].setHTML(content || '');
+        }
+    }
+</script>
+<style>
+    .toast-editor-wrap { margin-bottom: 15px; }
+    .toastui-editor-defaultUI { border-radius: 6px; }
+</style>
+{%- endmacro %}
+
+{% macro body(tag_name, content="") -%}
+<div class="write_editor toast-editor-wrap">
+    <!-- 실제 전송될 textarea (숨김 처리) -->
+    <textarea id="{{ tag_name }}" name="{{ tag_name }}" style="display: none;">{{- content -}}</textarea>
+    <!-- Toast UI 에디터가 마운트될 DOM -->
+    <div id="toastui_editor_{{ tag_name }}"></div>
+</div>
+<input type="hidden" name="option" value="html2">
+
+<script>
+(function() {
+    const targetId = '{{ tag_name }}';
+    const initialVal = document.getElementById(targetId).value;
+
+    const editor = new toastui.Editor({
+        el: document.querySelector('#toastui_editor_' + targetId),
+        height: '500px',
+        initialEditType: 'wysiwyg',
+        previewStyle: 'vertical',
+        initialValue: initialVal,
+        hooks: {
+            addImageBlobHook: async (blob, callback) => {
+                const formData = new FormData();
+                formData.append('upload', blob);
+
+                try {
+                    const response = await fetch('/editor/ckeditor4/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Upload failed: ' + response.statusText);
+                    }
+
+                    const result = await response.json();
+                    if (result && result.url) {
+                        // Nginx 8000 포트 유실 방지를 위해 상대 경로 또는 원본 URL 삽입
+                        const imageUrl = result.url.startsWith('http') 
+                            ? new URL(result.url).pathname 
+                            : result.url;
+                        callback(imageUrl, blob.name || 'image');
+                    } else {
+                        alert('이미지 업로드에 실패했습니다.');
+                    }
+                } catch (error) {
+                    console.error('Editor Image Upload Error:', error);
+                    alert('이미지 업로드 중 오류가 발생했습니다.');
+                }
+            }
+        },
+        events: {
+            change: function() {
+                // 에디터 내용 변경 시 textarea 동기화
+                document.getElementById(targetId).value = editor.getHTML();
+            }
+        }
+    });
+
+    toastEditors[targetId] = editor;
+})();
+</script>
+{%- endmacro %}

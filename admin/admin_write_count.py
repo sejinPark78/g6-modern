@@ -1,12 +1,8 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
 
-import plotly.express as px
-import plotly.graph_objects as go
-import pandas as pd
 from fastapi import APIRouter, Query, Request
 from sqlalchemy import case, func, Integer, or_, select
-from sqlalchemy.sql.expression import func
 
 from core.database import db_session
 from core.models import Board, BoardNew
@@ -16,7 +12,6 @@ from lib.template_functions import (
     get_editor_select, get_group_select,
     get_member_level_select, get_skin_select
 )
-
 
 router = APIRouter()
 templates = AdminTemplates()
@@ -30,11 +25,11 @@ WRITE_COUNT_MENU_KEY = "300820"
 
 
 @router.get("/write_count")
-async def write_count(request: Request, db: db_session, 
-        bo_table: str = Query("", alias="bo_table"),
-        period: str = Query("오늘", alias="period"),
-        graph: str = Query("bar", alias="graph")
-        ):
+async def write_count(request: Request, db: db_session,
+                      bo_table: str = Query("", alias="bo_table"),
+                      period: str = Query("오늘", alias="period"),
+                      graph: str = Query("bar", alias="graph")
+                      ):
     '''
     글, 댓글 현황 그래프
     '''
@@ -54,7 +49,7 @@ async def write_count(request: Request, db: db_session,
         '5년전': ['년', 365*5],
         '10년전': ['년', 365*10],
     }
-    day_info = period_array.get(period)
+    day_info = period_array.get(period, ['시간', 0])
     day = day_info[0]
 
     today = datetime.now().date()
@@ -62,7 +57,7 @@ async def write_count(request: Request, db: db_session,
     today_max_time = datetime.combine(today, datetime.max.time())
     yesterday_min_time = today_min_time - timedelta(days=1)
     yesterday_max_time = today_max_time - timedelta(days=1)
-        
+
     if period == '오늘':
         from_date = today_min_time
         to_date = today_max_time
@@ -75,44 +70,32 @@ async def write_count(request: Request, db: db_session,
     else:
         from_date = today_min_time - timedelta(days=day_info[1])
         to_date = yesterday_max_time
-    
+
     bo_table_array = db.execute(select(Board.bo_table, Board.bo_subject).order_by(Board.bo_count_write.desc())).all()
 
-    # Determine the current dialect
     dialect = db.bind.dialect.name
-
-    x_data = []
-    y_data = []
     x_label = ""
-    
+
     if day == '시간':
-        
         x_label = 'hours'
         if dialect == 'postgresql':
             hours_expr = func.to_char(BoardNew.bn_datetime, 'HH24')
         else:
-            # 여기에 다른 방언에 대한 코드를 추가하세요
-            hours_expr = func.substr(BoardNew.bn_datetime, 12, 2)  # 이는 일반적인 경우에 대한 예입니다.
+            hours_expr = func.substr(BoardNew.bn_datetime, 12, 2)
 
         result = db.execute(
             select(
-                hours_expr.label(x_label), 
+                hours_expr.label(x_label),
                 func.sum(case((BoardNew.wr_id == BoardNew.wr_parent, 1), else_=0)).label('write_count'),
                 func.sum(case((BoardNew.wr_id != BoardNew.wr_parent, 1), else_=0)).label('comment_count')
             ).filter(
                 BoardNew.bn_datetime.between(from_date, to_date),
                 or_(BoardNew.bo_table == bo_table, bo_table == '')
-            ).group_by(x_label, BoardNew.bn_datetime).order_by(BoardNew.bn_datetime)
+            ).group_by(x_label).order_by(x_label)
         ).all()
 
-        for row in result:
-            x_data.append(f"['{row.hours[:8]}',{row.write_count}]")
-            y_data.append(f"['{row.hours[:8]}',{row.comment_count}]")
-            
     elif day == '일':
-        
         x_label = 'days'
-        
         if dialect == 'mysql':
             date_expr = func.date_format(BoardNew.bn_datetime, '%Y-%m-%d')
         elif dialect == 'postgresql':
@@ -121,32 +104,25 @@ async def write_count(request: Request, db: db_session,
             date_expr = func.strftime('%Y-%m-%d', BoardNew.bn_datetime)
         else:
             raise Exception(f"Unsupported dialect: {dialect}")
-                                    
+
         result = db.execute(
             select(
-                date_expr.label(x_label), 
+                date_expr.label(x_label),
                 func.sum(case((BoardNew.wr_id == BoardNew.wr_parent, 1), else_=0)).label('write_count'),
                 func.sum(case((BoardNew.wr_id != BoardNew.wr_parent, 1), else_=0)).label('comment_count')
             ).filter(
                 BoardNew.bn_datetime.between(from_date, to_date),
                 or_(BoardNew.bo_table == bo_table, bo_table == '')
-            ).group_by(x_label, BoardNew.bn_datetime).order_by(BoardNew.bn_datetime)
+            ).group_by(x_label).order_by(x_label)
         ).all()
-        
-        for row in result:
-            x_data.append(f"['{row.days[5:10]}',{row.write_count}]")
-            y_data.append(f"['{row.days[5:10]}',{row.comment_count}]")
-            
+
     elif day == '주':
-        
         x_label = 'weeks'
-        
         if dialect == 'mysql':
             week_expr = func.week(BoardNew.bn_datetime)
             concat_expr = func.concat(func.substr(BoardNew.bn_datetime, 1, 4), '-', week_expr)
         elif dialect == 'postgresql':
-            week_expr = func.extract('week', BoardNew.bn_datetime)
-            concat_expr = func.to_char(BoardNew.bn_datetime, 'IYYY-IW')  # Using ISO week numbering
+            concat_expr = func.to_char(BoardNew.bn_datetime, 'IYYY-IW')
         elif dialect == 'sqlite':
             week_expr = func.strftime('%W', BoardNew.bn_datetime)
             concat_expr = func.substr(BoardNew.bn_datetime, 1, 4) + '-' + week_expr
@@ -155,25 +131,17 @@ async def write_count(request: Request, db: db_session,
 
         result = db.execute(
             select(
-                concat_expr.label(x_label), 
+                concat_expr.label(x_label),
                 func.sum(case((BoardNew.wr_id == BoardNew.wr_parent, 1), else_=0)).label('write_count'),
                 func.sum(case((BoardNew.wr_id != BoardNew.wr_parent, 1), else_=0)).label('comment_count')
             ).filter(
                 BoardNew.bn_datetime.between(from_date, to_date),
                 or_(BoardNew.bo_table == bo_table, bo_table == '')
-            ).group_by(x_label, BoardNew.bn_datetime).order_by(BoardNew.bn_datetime)
+            ).group_by(x_label).order_by(x_label)
         ).all()
-        
-        for row in result:
-            lyear, lweek = row.weeks.split('-')
-            date = (datetime.strptime(f"{lyear}W{str(lweek).zfill(2)}", "%YW%W") + timedelta(days=1)).strftime("%y-%m-%d")
-            x_data.append(f"['{date}',{row.write_count}]")
-            y_data.append(f"['{date}',{row.comment_count}]")
 
     elif day == '월':
-        
         x_label = 'months'
-
         if dialect == 'mysql':
             month_expr = func.date_format(BoardNew.bn_datetime, '%Y-%m')
         elif dialect == 'postgresql':
@@ -185,23 +153,17 @@ async def write_count(request: Request, db: db_session,
 
         result = db.execute(
             select(
-                month_expr.label(x_label), 
+                month_expr.label(x_label),
                 func.sum(case((BoardNew.wr_id == BoardNew.wr_parent, 1), else_=0)).label('write_count'),
                 func.sum(case((BoardNew.wr_id != BoardNew.wr_parent, 1), else_=0)).label('comment_count')
             ).filter(
                 BoardNew.bn_datetime.between(from_date, to_date),
                 or_(BoardNew.bo_table == bo_table, bo_table == '')
-            ).group_by(x_label, BoardNew.bn_datetime).order_by(BoardNew.bn_datetime)
+            ).group_by(x_label).order_by(x_label)
         ).all()
 
-        for row in result:
-            x_data.append(f"['{row.months[2:7]}',{row.write_count}]")
-            y_data.append(f"['{row.months[2:7]}',{row.comment_count}]")
-
     elif day == '년':
-        
         x_label = 'years'
-        
         if dialect == 'mysql':
             year_expr = func.year(BoardNew.bn_datetime)
         elif dialect == 'postgresql':
@@ -213,96 +175,81 @@ async def write_count(request: Request, db: db_session,
 
         result = db.execute(
             select(
-                year_expr.label(x_label), 
+                year_expr.label(x_label),
                 func.sum(case((BoardNew.wr_id == BoardNew.wr_parent, 1), else_=0)).label('write_count'),
                 func.sum(case((BoardNew.wr_id != BoardNew.wr_parent, 1), else_=0)).label('comment_count')
             ).filter(
                 BoardNew.bn_datetime.between(from_date, to_date),
                 or_(BoardNew.bo_table == bo_table, bo_table == '')
-            ).group_by(x_label, BoardNew.bn_datetime).order_by(BoardNew.bn_datetime)
+            ).group_by(x_label).order_by(x_label)
         ).all()
 
-        for row in result:
-            year = str(row.years)[:4]
-            x_data.append(f"['{year}',{row.write_count}]")
-            y_data.append(f"['{year}',{row.comment_count}]")
+    # 날짜 라벨과 카운트 집계 (순수 파이썬)
+    labels = []
+    write_counts = []
+    comment_counts = []
 
-    
-    # 날짜별로 글과 댓글을 합침
-    aggregated_data = defaultdict(lambda: [0, 0])
     for row in result:
-        x, write_count, comment_count = row
-        aggregated_data[x][0] += int(write_count)
-        aggregated_data[x][1] += int(comment_count)
-        
-    # print(day)            
-    # print(result)
-    # print(x_label)            
-    # print(aggregated_data)
-            
-    # 데이터 프레임 생성
-    df = pd.DataFrame({
-        x_label: aggregated_data.keys(),
-        'write_count': [wc for wc, _ in aggregated_data.values()],
-        'comment_count': [cc for _, cc in aggregated_data.values()]
-    })
-    
-    # x_label에 따라 날짜/시간 형식 변경
-    if x_label == "hours":
-        df[x_label] = pd.to_datetime(df[x_label].astype(str), format='%H').dt.strftime('%H:%M %p')
-    elif x_label == "days":
-        df[x_label] = pd.to_datetime(df[x_label]).dt.strftime('%y-%m-%d')
-    elif x_label == "weeks":
-        # df[x_label] = pd.to_datetime(df[x_label]).dt.strftime('Week %U, %Y')
-        # 'weeks' 열의 값을 변환
-        df[x_label] = df[x_label].apply(lambda x: datetime.strptime(x + '-1', "%Y-%W-%w"))
-        # 변환된 날짜를 'Week %U, %Y' 형식으로 다시 형식화
-        # df[x_label] = df[x_label].dt.strftime('Week %U, %Y')
-        df[x_label] = pd.to_datetime(df[x_label], errors='coerce')
-        df[x_label] = df[x_label].dt.strftime('Week %U, %Y')
-    elif x_label == "months":
-        df[x_label] = pd.to_datetime(df[x_label]).dt.strftime('%b, %Y')
-    elif x_label == "years":
-        df[x_label] = pd.to_datetime(df[x_label].astype(str), format= '%Y').dt.strftime('%Y')
-        
-    if not (graph == 'bar' or graph == 'line' or graph == 'scatter'):
-        graph = 'bar'
-    
-    # 그래프 생성 함수를 매핑합니다.
-    if not df[x_label].empty:
-        graph_mapping = {
-            'bar': px.bar,
-            'line': px.line,
-            'scatter': px.scatter,
-        }
+        raw_x = str(row[0]) if row[0] is not None else ""
+        w_cnt = int(row[1]) if row[1] is not None else 0
+        c_cnt = int(row[2]) if row[2] is not None else 0
 
-        # 그래프 생성
-        #fig = px.bar(...)
-        
-        fig = graph_mapping[graph](df, x=x_label, y=['write_count', 'comment_count'], 
-                    labels={'value': 'Count', 'x': x_label, 'variable': 'Type'},
-                    title=f'글수(write_count), 댓글수(comment_count)')
-        # 라인 굵기 변경
-        # fig.update_traces(line=dict(width=100)) 
-        
-        # df = px.data.iris()  # 예제 데이터셋 로드
-        # fig = px.scatter(df, x="sepal_width", y="sepal_length", color="species", 
-        #                  size='petal_length', hover_data=['petal_width'])   
+        # 라벨 포맷팅
+        if x_label == "hours":
+            formatted_label = f"{raw_x}:00"
+        elif x_label == "weeks":
+            formatted_label = f"Week {raw_x}"
+        else:
+            formatted_label = raw_x
+
+        labels.append(formatted_label)
+        write_counts.append(w_cnt)
+        comment_counts.append(c_cnt)
+
+    # Chart.js를 사용한 경량 HTML 렌더링
+    chart_type = 'line' if graph == 'line' else 'bar'
+    if not labels:
+        graph_html = '<div style="text-align:center; padding: 50px; font-size: 18px; color: #888;">그래프를 만들 데이터가 없습니다.</div>'
     else:
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=[0.5], y=[0.5],
-            text=['그래프를 만들 데이터가 없습니다'],
-            mode='text',
-        ))
-        fig.update_layout(
-            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-            font=dict(size=20),
-            height=300,
-        )
-    graph_html = fig.to_html()
-    
+        graph_html = f'''
+        <div style="width: 100%; max-height: 400px;">
+            <canvas id="writeCountChart"></canvas>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            const ctx = document.getElementById('writeCountChart').getContext('2d');
+            new Chart(ctx, {{
+                type: '{chart_type}',
+                data: {{
+                    labels: {labels},
+                    datasets: [
+                        {{
+                            label: '글 작성 수',
+                            data: {write_counts},
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }},
+                        {{
+                            label: '댓글 작성 수',
+                            data: {comment_counts},
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }}
+                    ]
+                }},
+                options: {{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {{
+                        y: {{ beginAtZero: true, ticks: {{ precision: 0 }} }}
+                    }}
+                }}
+            }});
+        </script>
+        '''
+
     context = {
         "request": request,
         "bo_table_array": bo_table_array,
@@ -310,7 +257,6 @@ async def write_count(request: Request, db: db_session,
         "bo_table": bo_table,
         "period": period,
         "graph": graph,
-        # "templatg": template,
         "graph_html": graph_html,
     }
     return templates.TemplateResponse("write_count.html", context)

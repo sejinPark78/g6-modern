@@ -7,14 +7,14 @@
             <div class="slide-con" data-dot-title="{{ write.subject }}" data-dot-content="{{ write.wr_content }}" data-dot-bo-table="{{ bo_table }}" data-dot-wr-id="{{ write.wr_id }}">
                 <div class="slide-dummy"></div>
                 <div class="slide-txt">
-                    <h2 class="txt-tt"><a href="{{ url_for('read_post', bo_table=bo_table, wr_id=write.wr_id) }}">{{ write.subject }}</a></h2>
+                    <h2 class="txt-tt"><a href="{{ url_for('read_post', bo_table=bo_table, wr_id=write.wr_id).path }}">{{ write.subject }}</a></h2>
                     <p class="txt-desc">{{ write.wr_content|striptags }}</p>
                     <div class="txt-btn">
-                        <a href="{{ url_for('read_post', bo_table=bo_table, wr_id=write.wr_id) }}">바로가기</a>
+                        <a href="{{ url_for('read_post', bo_table=bo_table, wr_id=write.wr_id).path }}">바로가기</a>
                     </div>
                 </div>
                 <picture class="img-box">
-                    <a href="{{ url_for('read_post', bo_table=bo_table, wr_id=write.wr_id) }}" class="lt_img">
+                    <a href="{{ url_for('read_post', bo_table=bo_table, wr_id=write.wr_id).path }}" class="lt_img">
                         {% set thumbnail=get_list_thumbnail(request, board, write, thumb_width, thumb_height) %}
                         {% if thumbnail.src %}
                         <img src="/{{ thumbnail.src }}" alt="{{ thumbnail.alt }}">
