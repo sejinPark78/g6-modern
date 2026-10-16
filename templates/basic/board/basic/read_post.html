@@ -153,6 +153,49 @@
         {% endfor %}
         </div>
 
+        
+<style>
+/* Modern Article Viewer Styling */
+#article_contents {
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: #2b2b2b;
+    word-break: break-word;
+    padding: 10px 0 30px 0;
+}
+#article_contents img {
+    max-width: 100% !important;
+    height: auto !important;
+    border-radius: 8px;
+    margin: 14px 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+#article_contents p {
+    margin-bottom: 1rem;
+}
+#article_contents h1, #article_contents h2, #article_contents h3, #article_contents h4 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.8rem;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+#article_contents blockquote {
+    margin: 1.2rem 0;
+    padding: 0.8rem 1.2rem;
+    border-left: 4px solid #3b82f6;
+    background-color: #f8fafc;
+    color: #4b5563;
+    border-radius: 0 6px 6px 0;
+}
+#article_contents pre {
+    background-color: #1e293b;
+    color: #f8fafc;
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+</style>
+
         <div id="article_contents" class="{{ request.state.editor }}">
             {{ write.wr_content|set_image_width(board_config.image_width)|url_auto_link(request)|safe }}
         </div>
