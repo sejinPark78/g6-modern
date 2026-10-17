@@ -1482,3 +1482,29 @@ transition:all 0.1s ease-in-out}
     #faq_sch .frm_input { width: 100%; max-width: 100%; }
     #faq_sch .btn_submit { margin-top: 20px; }
 }
+
+
+/* Accessibility & High Readability Enhancement (PC Large Fonts) */
+@media (min-width: 1024px) {
+    html, body {
+        font-size: 16.5px !important;
+        line-height: 1.75 !important;
+    }
+    /* 본문 및 게시판 목록 제목 크기 상향 */
+    .list_table td, .list_table th {
+        font-size: 1.05rem !important;
+        padding: 16px 12px !important;
+    }
+    .list_table .bo_tit a {
+        font-size: 1.1rem !important;
+    }
+    #article_contents {
+        font-size: 1.18rem !important;
+        line-height: 1.95 !important;
+    }
+    /* 댓글 영역 가독성 */
+    .bo_vc_con {
+        font-size: 1.08rem !important;
+        line-height: 1.8 !important;
+    }
+}
