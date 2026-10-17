@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ request.state.title|default("Home Dashboard") }}</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#f0f9ff', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1' }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body class="h-full flex overflow-hidden text-slate-800">
+
+    <!-- 데스크톱 고정 사이드바 -->
+    <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-slate-900 text-slate-200 border-r border-slate-800 flex-shrink-0 transition-all duration-200">
+        <div class="h-16 flex items-center px-6 gap-3 border-b border-slate-800">
+            <div class="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-brand-500/30">G</div>
+            <span class="font-bold text-lg tracking-wide text-white">G6 Server</span>
+        </div>
+        
+        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+            <a href="/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium bg-brand-600 text-white shadow-sm">
+                <i class="ph ph-squares-four text-lg"></i> 대시보드 홈
+            </a>
+
+            <!-- 커뮤니티 섹션 -->
+            <div class="pt-4 pb-2 px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Community</div>
+            <a href="/board/qa" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                <i class="ph ph-chats-circle text-lg"></i> 질문답변 (Q&A)
+            </a>
+            <a href="/board/free" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                <i class="ph ph-article text-lg"></i> 자유게시판
+            </a>
+
+            <!-- 관리자 전용 사이드바 링크 -->
+            {% if request.state.is_super_admin %}
+            <div class="pt-6 pb-2 px-3 text-xs font-semibold text-amber-400/90 uppercase tracking-wider flex items-center gap-1.5">
+                <i class="ph ph-shield-check"></i> System Admin
+            </div>
+            <a href="/admin" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 transition">
+                <i class="ph ph-gear-six text-lg"></i> 관리자 패널
+            </a>
+            {% endif %}
+        </nav>
+
+        <div class="p-4 border-t border-slate-800 text-xs text-slate-500 flex items-center justify-between">
+            <span>Server: Active</span>
+            <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+        </div>
+    </aside>
+
+    <!-- 메인 컨텐츠 영역 -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <!-- 상단 헤더 네비게이션 -->
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 z-10">
+            <div class="flex items-center gap-3">
+                <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                    <i class="ph ph-list text-2xl"></i>
+                </button>
+                <h1 class="text-lg font-bold text-slate-800">{% block header_title %}Overview{% endblock %}</h1>
+            </div>
+
+            <!-- 사용자 및 관리자 컨트롤 영역 -->
+            <div class="flex items-center gap-3">
+                {% if request.state.login_member %}
+                    <span class="text-sm font-medium text-slate-700 hidden sm:inline">{{ request.state.login_member.mb_nick }}님</span>
+                    
+                    <!-- 관리자 계정일 때 강조 버튼 노출 -->
+                    {% if request.state.is_super_admin %}
+                    <a href="/admin" class="inline-flex items-center gap-1.5 text-xs bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-3 py-1.5 rounded-lg shadow-sm transition">
+                        <i class="ph ph-wrench text-sm"></i> 관리자 모드
+                    </a>
+                    {% endif %}
+
+                    <a href="/bbs/logout" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-md font-semibold transition">로그아웃</a>
+                {% else %}
+                    <a href="/bbs/login" class="text-xs bg-brand-500 hover:bg-brand-600 text-white px-3.5 py-1.5 rounded-md font-semibold transition shadow-sm">로그인</a>
+                {% endif %}
+            </div>
+        </header>
+
+        <!-- 동적 본문 콘텐츠 -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-8">
+            <div class="max-w-7xl mx-auto">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- 모바일 드로어 스크립트 -->
+    <script>
+        const btn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        if (btn && sidebar) {
+            btn.addEventListener('click', () => {
+                sidebar.classList.toggle('hidden');
+                sidebar.classList.toggle('absolute');
+                sidebar.classList.toggle('inset-y-0');
+                sidebar.classList.toggle('left-0');
+                sidebar.classList.toggle('z-50');
+            });
+        }
+    </script>
+</body>
+</html>
