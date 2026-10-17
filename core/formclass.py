@@ -1,3 +1,5 @@
+from typing import Optional
+from pydantic import BaseModel, ConfigDict, field_validator
 import re
 from dataclasses import dataclass
 from datetime import datetime
@@ -453,10 +455,19 @@ class WriteCommentForm:
     w: str = Form(...)
     wr_id: int = Form(...)
     wr_content: str = Form(...)
-    wr_name: str = Form(None)
-    wr_password: str = Form(None)
-    wr_secret: str = Form(None)
-    comment_id: int = Form(None)
+    wr_name: str = Form(default=None)
+    wr_password: str = Form(default=None)
+    wr_secret: str = Form(default=None)
+    comment_id: int = Form(default=0)
+
+    def __post_init__(self):
+        # Pydantic v2의 str_strip_whitespace 및 타입 안전성 보장
+        if self.wr_content:
+            self.wr_content = self.wr_content.strip()
+        if self.wr_name:
+            self.wr_name = self.wr_name.strip()
+        if not self.comment_id:
+            self.comment_id = 0
 
 
 @dataclass
