@@ -194,6 +194,29 @@
     border-radius: 8px;
     overflow-x: auto;
 }
+
+/* Modern Article Viewer - Dark Mode Support */
+:root[color-theme="dark"] #article_contents {
+    color: #e2e8f0;
+}
+:root[color-theme="dark"] #article_contents h1,
+:root[color-theme="dark"] #article_contents h2,
+:root[color-theme="dark"] #article_contents h3,
+:root[color-theme="dark"] #article_contents h4 {
+    color: #f8fafc;
+}
+:root[color-theme="dark"] #article_contents blockquote {
+    background-color: #1e293b;
+    border-left: 4px solid #60a5fa;
+    color: #cbd5e1;
+}
+:root[color-theme="dark"] #article_contents pre {
+    background-color: #0f172a;
+    border: 1px solid #334155;
+}
+:root[color-theme="dark"] #article_contents img {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
 </style>
 
         <div id="article_contents" class="{{ request.state.editor }}">
