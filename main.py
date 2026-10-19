@@ -61,6 +61,34 @@ app = FastAPI(
     description=""
 )
 
+# --- PWA Static Direct Endpoints ---
+import os
+from fastapi.responses import FileResponse
+
+G6_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+@app.get("/manifest.json", include_in_schema=False)
+async def get_manifest():
+    return FileResponse(os.path.join(G6_BASE_DIR, "templates/modern_dashboard/static/manifest.json"), media_type="application/manifest+json")
+
+@app.get("/sw.js", include_in_schema=False)
+async def get_sw():
+    return FileResponse(os.path.join(G6_BASE_DIR, "templates/modern_dashboard/static/sw.js"), media_type="application/javascript")
+
+@app.get("/icon-192.png", include_in_schema=False)
+async def get_icon_192():
+    return FileResponse(os.path.join(G6_BASE_DIR, "templates/modern_dashboard/static/icons/icon-192.png"), media_type="image/png")
+
+@app.get("/icon-512.png", include_in_schema=False)
+async def get_icon_512():
+    return FileResponse(os.path.join(G6_BASE_DIR, "templates/modern_dashboard/static/icons/icon-512.png"), media_type="image/png")
+# --- End PWA Static Direct Endpoints ---
+
+# PWA Root Handlers
+from fastapi.responses import FileResponse
+
+
+
 # git clone으로 소스를 받은 경우에는 data디렉토리가 없으므로 생성해야 함
 if not os.path.exists("data"):
     os.mkdir("data")
@@ -274,3 +302,7 @@ async def device_change(
 
     referer = request.headers.get("Referer", "/")
     return RedirectResponse(referer, status_code=303)
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def get_favicon():
+    return FileResponse(os.path.join(G6_BASE_DIR, "templates/modern_dashboard/static/icons/icon-192.png"), media_type="image/png")

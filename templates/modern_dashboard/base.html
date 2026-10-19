@@ -22,6 +22,22 @@
     <style>
         body { -webkit-tap-highlight-color: transparent; }
     </style>
+        <!-- PWA Settings -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0ea5e9">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/static/modern_dashboard/icons/icon-192.png">
+    <script>
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("/sw.js")
+                    .then(reg => console.log("PWA SW Registered: ", reg.scope))
+                    .catch(err => console.log("PWA SW Failed: ", err));
+            });
+        }
+    </script>
+
     {% block head %}{% endblock %}
 </head>
 <body class="h-full flex overflow-hidden text-slate-800">
