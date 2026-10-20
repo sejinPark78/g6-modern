@@ -31,3 +31,10 @@ log/
 fix_nginx*.py
 make_nginx*.py
 update_nginx*.py
+venv/
+.venv/
+__pycache__/
+*.pyc
+.env
+data/
+downloads/

@@ -39,6 +39,16 @@
     </script>
 
     {% block head %}{% endblock %}
+
+    <!-- HTMX Core for SPA Experience -->
+    <script src="{{ url_for('static', path='js/htmx.min.js') }}"></script>
+    <script>
+        // HTMX 요청 시 필요 헤더 및 에러 핸들링
+        document.addEventListener("htmx:configRequest", (evt) => {
+            evt.detail.headers["X-Requested-With"] = "XMLHttpRequest";
+        });
+    </script>
+
 </head>
 <body class="h-full flex overflow-hidden text-slate-800">
 

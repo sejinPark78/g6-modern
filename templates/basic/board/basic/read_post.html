@@ -229,11 +229,16 @@
         <div id="article_react">
             {% if board.bo_use_good %}
             <div>
-                <a href="/bbs/ajax/good/{{ board.bo_table }}/{{ write.wr_id }}/good" id="react_good" class="btn_react react_good {{ "active" if write.is_good else "" }}">
+                <button type="button" 
+        hx-post="/htmx/good/{{ board.bo_table }}/{{ write.wr_id }}" 
+        hx-target="#react_good" 
+        hx-swap="outerHTML" 
+        id="react_good" 
+        class="btn_react react_good {{ "active" if write.is_good else "" }}">
                     <i class="fa fa-regular fa-thumbs-up" aria-hidden="true"></i>
                     <span class="blind">추천</span>
                     <strong>{{ write.wr_good }}</strong>
-                </a>
+                </button>
                 <b class="react_msg good"></b>
             </div>
             {% endif %}

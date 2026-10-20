@@ -448,8 +448,10 @@
         <h2 class="blind">댓글쓰기</h2>
 
         <form name="fviewcomment" id="fviewcomment" method="post" autocomplete="off"
-            action="{{ url_for('write_comment_update', bo_table=board.bo_table)|set_query_params(request) }}" 
-            onsubmit="return fviewcomment_submit(this);">
+            hx-post="/htmx/comment/{{ board.bo_table }}/{{ write.wr_id }}"
+            hx-target="#bo_basic_comment"
+            hx-swap="beforeend"
+            hx-on::after-request="if(event.detail.successful) { this.querySelector('textarea[name=wr_content]').value = ''; }">
 
             <input type="hidden" name="w" id="w" value="c">
             <input type="hidden" name="bo_table" value="{{ board.bo_table }}">

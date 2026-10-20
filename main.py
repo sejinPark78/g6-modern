@@ -316,3 +316,8 @@ app.include_router(kakao_oauth_router)
 from bbs.oauth.kakao import router as kakao_oauth_router
 app.include_router(kakao_oauth_router)
 # --- End Kakao OAuth Router Mount ---
+
+# --- HTMX Router Mount ---
+from bbs.htmx_router import router as htmx_router
+app.include_router(htmx_router)
+# --- End HTMX Router Mount ---
