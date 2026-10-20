@@ -182,3 +182,42 @@ async def get_db() -> AsyncGenerator[Session, None]:
 
 # Annotated를 사용하여 의존성 주입
 db_session = Annotated[Session, Depends(get_db)]
+
+# ==========================================
+# Full Async/Await ORM Extension
+# ==========================================
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+
+# 비밀번호 마스킹 없이 원본 URL 문자열 추출
+_raw_url = db_connect.url.render_as_string(hide_password=False)
+
+if "mysql+pymysql" in _raw_url:
+    _async_url_str = _raw_url.replace("mysql+pymysql", "mysql+aiomysql")
+elif "mysql://" in _raw_url:
+    _async_url_str = _raw_url.replace("mysql://", "mysql+aiomysql://")
+else:
+    _async_url_str = _raw_url
+
+async_engine = create_async_engine(
+    _async_url_str,
+    pool_recycle=3600,
+    pool_pre_ping=True,
+    echo=False
+)
+
+AsyncSessionLocal = async_sessionmaker(
+    bind=async_engine,
+    class_=AsyncSession,
+    autocommit=False,
+    autoflush=False,
+    expire_on_commit=False
+)
+
+async def get_async_db() -> AsyncGenerator[AsyncSession, None]:
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()
+
+async_db_session = Annotated[AsyncSession, Depends(get_async_db)]

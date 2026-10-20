@@ -306,3 +306,13 @@ async def device_change(
 @app.get("/favicon.ico", include_in_schema=False)
 async def get_favicon():
     return FileResponse(os.path.join(G6_BASE_DIR, "templates/modern_dashboard/static/icons/icon-192.png"), media_type="image/png")
+
+# --- OAuth 2.0 Router Mount ---
+from bbs.oauth.kakao import router as kakao_oauth_router
+app.include_router(kakao_oauth_router)
+# --- End OAuth Router Mount ---
+
+# --- Kakao OAuth Router Mount ---
+from bbs.oauth.kakao import router as kakao_oauth_router
+app.include_router(kakao_oauth_router)
+# --- End Kakao OAuth Router Mount ---
