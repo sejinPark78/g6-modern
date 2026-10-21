@@ -1,6 +1,54 @@
 <!doctype html>
 <html lang="ko">
 <head>
+
+<style>
+/* [Fix] 스크린리더용 텍스트 숨김 (세로로 쏟아지는 현상 방지) */
+.sound_only, [class*="sound_only"] {
+    display: none !important;
+    position: absolute !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
+
+/* [Fix] 게시판 테이블 전체 폭 및 줄바꿈 제어 */
+table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    table-layout: auto !important;
+}
+
+th, td {
+    white-space: nowrap !important;
+    padding: 12px 10px !important;
+    vertical-align: middle !important;
+}
+
+/* 제목 칸만 넉넉하게 확장 */
+td:has(a), td.td_subject, th.td_subject, [class*="subject"] {
+    white-space: normal !important;
+    width: 100% !important;
+    min-width: 250px !important;
+}
+
+/* 컬럼별 정렬 및 최소 너비 확보 */
+.td_chk, th.td_chk { width: 44px !important; text-align: center !important; }
+.td_num, th.td_num { width: 60px !important; text-align: center !important; }
+.td_name, th.td_name { width: 120px !important; text-align: center !important; }
+.td_date, th.td_date { width: 95px !important; text-align: center !important; }
+.td_num2, th.td_num2 { width: 60px !important; text-align: center !important; }
+
+/* 상단 우측 버튼 정돈 */
+#bo_btn_top, .bo_btn_top, [class*="btn_top"] {
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+    align-items: center !important;
+    margin-bottom: 12px !important;
+}
+</style>
+
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=Edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">

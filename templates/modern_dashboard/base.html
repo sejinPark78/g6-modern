@@ -1,6 +1,106 @@
 <!DOCTYPE html>
 <html lang="ko" class="h-full bg-slate-50">
 <head>
+
+<style>
+/* 1. 스크린리더 전용 텍스트 완벽 숨김 (중복 제목 및 전체선택 텍스트 제거) */
+.blind, .sound_only, b.blind, span.blind {
+    display: none !important;
+    position: absolute !important;
+    width: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    border: 0 !important;
+}
+
+/* 2. 게시판 테이블 레이아웃 및 여백 최적화 */
+table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+}
+
+th, td {
+    white-space: nowrap !important;
+    padding: 12px 14px !important;
+    vertical-align: middle !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+/* 3. 첫 번째 체크박스 열과 번호 열 크기 고정 */
+.table_check, td.table_check, th.table_check {
+    width: 46px !important;
+    text-align: center !important;
+}
+
+.table_wrid, td.table_wrid, th.table_wrid {
+    width: 60px !important;
+    text-align: center !important;
+}
+
+/* 4. 제목 열은 가로폭 전체 확장 및 정상 줄바꿈 */
+.table_subject, td.table_subject, th.table_subject {
+    width: 100% !important;
+    white-space: normal !important;
+    min-width: 250px !important;
+}
+
+/* 5. 우측 정보 열 크기 및 정렬 */
+.table_writer { width: 120px !important; text-align: center !important; }
+.table_hit { width: 70px !important; text-align: center !important; }
+.table_datetime { width: 95px !important; text-align: center !important; }
+</style>
+
+
+<style>
+/* [Fix] 스크린리더용 텍스트 숨김 (세로로 쏟아지는 현상 방지) */
+.sound_only, [class*="sound_only"] {
+    display: none !important;
+    position: absolute !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
+
+/* [Fix] 게시판 테이블 전체 폭 및 줄바꿈 제어 */
+table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    table-layout: auto !important;
+}
+
+th, td {
+    white-space: nowrap !important;
+    padding: 12px 10px !important;
+    vertical-align: middle !important;
+}
+
+/* 제목 칸만 넉넉하게 확장 */
+td:has(a), td.td_subject, th.td_subject, [class*="subject"] {
+    white-space: normal !important;
+    width: 100% !important;
+    min-width: 250px !important;
+}
+
+/* 컬럼별 정렬 및 최소 너비 확보 */
+.td_chk, th.td_chk { width: 44px !important; text-align: center !important; }
+.td_num, th.td_num { width: 60px !important; text-align: center !important; }
+.td_name, th.td_name { width: 120px !important; text-align: center !important; }
+.td_date, th.td_date { width: 95px !important; text-align: center !important; }
+.td_num2, th.td_num2 { width: 60px !important; text-align: center !important; }
+
+/* 상단 우측 버튼 정돈 */
+#bo_btn_top, .bo_btn_top, [class*="btn_top"] {
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+    align-items: center !important;
+    margin-bottom: 12px !important;
+}
+</style>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ request.state.title|default("Home Dashboard") }}</title>
@@ -48,6 +148,415 @@
             evt.detail.headers["X-Requested-With"] = "XMLHttpRequest";
         });
     </script>
+
+
+<style>
+/* 버튼 내부의 .blind 텍스트는 보이도록 예외 복구 */
+.btn .blind, .btn_b01 .blind, .btn_bo_user .blind, .btn_admin .blind,
+button .blind, a.btn .blind {
+    display: inline !important;
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    clip: auto !important;
+    margin-left: 4px !important;
+}
+
+/* 상단/하단 버튼 목록 정렬 */
+.bo_btn_top, ul.btn_bo_user, ul.btn_bo_adm {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* 글쓰기 및 기본 버튼 모던 스타일링 */
+a.btn_b01, .btn_b01 {
+    display: inline-flex !important;
+    align-items: center !important;
+    background-color: #0284c7 !important;
+    color: #ffffff !important;
+    padding: 7px 14px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    transition: background-color 0.2s !important;
+}
+a.btn_b01:hover {
+    background-color: #0369a1 !important;
+}
+
+/* 검색/관리자 등 보조 버튼 스타일링 */
+.btn_bo_user button, .btn_admin a, .btn_b02 {
+    display: inline-flex !important;
+    align-items: center !important;
+    background-color: #f1f5f9 !important;
+    color: #334155 !important;
+    padding: 7px 12px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    border: 1px solid #cbd5e1 !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+}
+</style>
+
+
+<style>
+/* === 검색 모달 팝업 스타일 === */
+.list_search {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9999 !important;
+}
+
+.list_search .search_mask {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(15, 23, 42, 0.45) !important;
+    backdrop-filter: blur(2px) !important;
+}
+
+.list_search .search_modal {
+    position: absolute !important;
+    top: 35% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    background: #ffffff !important;
+    padding: 24px 28px !important;
+    border-radius: 14px !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.08) !important;
+    width: 90% !important;
+    max-width: 480px !important;
+    z-index: 10 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    align-items: center !important;
+}
+
+.list_search .modal_title {
+    width: 100% !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    margin-bottom: 8px !important;
+}
+
+.list_search select#sfl {
+    height: 40px !important;
+    padding: 0 10px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    color: #334155 !important;
+    background-color: #f8fafc !important;
+    outline: none !important;
+}
+
+.list_search .modal_keyword {
+    flex: 1 !important;
+    display: flex !important;
+    height: 40px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+}
+
+.list_search .modal_keyword input#stx {
+    flex: 1 !important;
+    border: none !important;
+    padding: 0 12px !important;
+    font-size: 13px !important;
+    outline: none !important;
+}
+
+.list_search .modal_keyword button[type="submit"] {
+    border: none !important;
+    background: #0284c7 !important;
+    color: #ffffff !important;
+    padding: 0 14px !important;
+    cursor: pointer !important;
+}
+
+.list_search .modal_close {
+    position: absolute !important;
+    top: 16px !important;
+    right: 18px !important;
+    background: transparent !important;
+    border: none !important;
+    font-size: 18px !important;
+    color: #94a3b8 !important;
+    cursor: pointer !important;
+    padding: 4px !important;
+}
+.list_search .modal_close:hover {
+    color: #1e293b !important;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    function initSearchModal() {
+        const openers = document.querySelectorAll(".search_opener");
+        const modalWrap = document.querySelector(".list_search");
+        const closeBtn = document.querySelector(".modal_close");
+        const mask = document.querySelector(".search_mask");
+
+        if (!modalWrap) return;
+
+        openers.forEach(btn => {
+            btn.addEventListener("click", function(e) {
+                e.preventDefault();
+                modalWrap.style.display = "block";
+                const input = modalWrap.querySelector("input#stx");
+                if (input) setTimeout(() => input.focus(), 50);
+            });
+        });
+
+        function closeModal() {
+            modalWrap.style.display = "none";
+        }
+
+        if (closeBtn) closeBtn.addEventListener("click", closeModal);
+        if (mask) mask.addEventListener("click", closeModal);
+
+        document.addEventListener("keydown", function(e) {
+            if (e.key === "Escape" && modalWrap.style.display === "block") {
+                closeModal();
+            }
+        });
+    }
+
+    initSearchModal();
+});
+</script>
+
+
+<style>
+/* 관리자 버튼을 포함한 모든 리스트 헤더 버튼 일괄 고정 */
+.list_header ul li a.btn_admin,
+.list_header ul li .btn_admin,
+a.btn_admin,
+.btn_admin {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    background-color: #0284c7 !important;
+    color: #ffffff !important;
+    border: 1px solid #0284c7 !important;
+    border-radius: 6px !important;
+    padding: 0 12px !important;
+    height: 34px !important;
+    line-height: 34px !important;
+    font-size: 13px !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    text-decoration: none !important;
+    width: auto !important;
+    min-width: 75px !important;
+    box-sizing: border-box !important;
+}
+
+/* 관리자 버튼 내부 텍스트 무조건 한 줄 표시 */
+.btn_admin * {
+    display: inline !important;
+    white-space: nowrap !important;
+    font-size: 13px !important;
+}
+
+/* 하단 버튼 그룹도 동일하게 정렬 */
+.bo_fx {
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+.bo_fx ul {
+    display: flex !important;
+    gap: 6px !important;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+</style>
+
+
+<script>
+// jQuery 없는 환경에서도 동작하는 순수 JS 동기식 토큰 발급기
+window.generate_token = function() {
+    var token = "";
+    try {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/generate_token", false); // 동기식 전송으로 token 반환 보장
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhr.send();
+
+        if (xhr.status === 200) {
+            var res = JSON.parse(xhr.responseText);
+            if (res && res.success) {
+                token = res.token;
+            } else if (res && res.token) {
+                token = res.token;
+            }
+        } else {
+            console.error("Token generation failed status:", xhr.status);
+        }
+    } catch (e) {
+        console.error("Token generation error:", e);
+    }
+    return token;
+};
+</script>
+
+
+<style>
+/* 1. 상세 페이지(read_post) 버튼을 감싸는 모든 ul 컨테이너 가로 정렬 */
+.bo_v_top, .bo_v_bottom, .bo_v_btn, 
+.bo_v_top ul, .bo_v_bottom ul,
+ul.bo_v_nb, ul.bo_v_com, ul.bo_v_left, ul.bo_v_right {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 8px !important;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* 2. 각 li 항목 너비 제한 해제 및 인라인 정렬 */
+.bo_v_top ul li, .bo_v_bottom ul li,
+.bo_v_btn li, ul.bo_v_right li, li.buttons_more {
+    display: inline-flex !important;
+    position: relative !important;
+    white-space: nowrap !important;
+    width: auto !important;
+}
+
+/* 3. 버튼 크기 및 텍스트 가로 일렬 강제 */
+.bo_v_top .btn, .bo_v_bottom .btn,
+.bo_v_btn a, .bo_v_btn button,
+li.buttons_more button,
+a.btn_b01, button.btn_b01 {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    height: 36px !important;
+    padding: 0 14px !important;
+    background-color: #0284c7 !important;
+    color: #ffffff !important;
+    border: 1px solid #0284c7 !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    writing-mode: horizontal-tb !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    width: auto !important;
+}
+
+/* 버튼 안의 span 텍스트도 가로 표시 */
+.bo_v_top .btn span, .bo_v_bottom .btn span,
+li.buttons_more button span {
+    writing-mode: horizontal-tb !important;
+    white-space: nowrap !important;
+}
+
+/* 4. 옵션(수정, 삭제 등) 드롭다운 팝업 레이어 */
+li.buttons_more ul.more {
+    display: none;
+    position: absolute !important;
+    top: 42px !important;
+    right: 0 !important;
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15) !important;
+    min-width: 120px !important;
+    padding: 6px 0 !important;
+    margin: 0 !important;
+    list-style: none !important;
+    z-index: 9999 !important;
+}
+
+li.buttons_more ul.more.active {
+    display: block !important;
+}
+
+li.buttons_more ul.more li {
+    display: block !important;
+    width: 100% !important;
+}
+
+li.buttons_more ul.more li a,
+li.buttons_more ul.more li button {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    padding: 8px 16px !important;
+    color: #334155 !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    height: auto !important;
+    font-size: 13px !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
+}
+
+li.buttons_more ul.more li a:hover,
+li.buttons_more ul.more li button:hover {
+    background-color: #f1f5f9 !important;
+    color: #0284c7 !important;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // buttons_more 안의 more_opener 클릭 시 토글
+    document.querySelectorAll(".buttons_more .more_opener").forEach(function(btn) {
+        btn.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const parent = btn.closest(".buttons_more");
+            const menu = parent ? parent.querySelector("ul.more") : null;
+            if (menu) {
+                // 다른 열려있는 드롭다운 닫기
+                document.querySelectorAll("ul.more.active").forEach(m => {
+                    if (m !== menu) m.classList.remove("active");
+                });
+                menu.classList.toggle("active");
+            }
+        });
+    });
+
+    // 화면 바깥 클릭 시 닫기
+    document.addEventListener("click", function(e) {
+        if (!e.target.closest(".buttons_more")) {
+            document.querySelectorAll("ul.more.active").forEach(m => m.classList.remove("active"));
+        }
+    });
+});
+</script>
 
 </head>
 <body class="h-full flex overflow-hidden text-slate-800">

@@ -1,3 +1,112 @@
+<style>
+/* === 모던 게시판 테이블 디자인 리셋 === */
+.sound_only, #bo_list .sound_only {
+    display: none !important; /* 세로 늘어짐 주범 숨김 */
+}
+
+#bo_list, .tbl_head01 {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    padding: 16px;
+    margin-top: 15px;
+}
+
+#bo_list table, .tbl_head01 table {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    table-layout: auto !important;
+}
+
+/* 헤더 & 본문 공통 줄바꿈 방지 */
+#bo_list th, #bo_list td,
+.tbl_head01 th, .tbl_head01 td {
+    padding: 14px 12px !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    font-size: 14px !important;
+}
+
+#bo_list th, .tbl_head01 th {
+    background: #f8fafc !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+}
+
+/* 제목 열: 자동 확장 및 텍스트 넉넉하게 */
+#bo_list td.td_subject, .tbl_head01 td.td_subject {
+    width: 100% !important;
+    white-space: normal !important;
+    min-width: 250px !important;
+    font-weight: 500 !important;
+    color: #1e293b !important;
+}
+
+/* 컬럼별 적정 고정 너비 및 텍스트 정렬 */
+.td_chk, th.td_chk { width: 45px !important; text-align: center !important; }
+.td_num, th.td_num { width: 65px !important; text-align: center !important; color: #64748b !important; }
+.td_name, th.td_name { width: 120px !important; text-align: center !important; }
+.td_date, th.td_date { width: 95px !important; text-align: center !important; color: #64748b !important; }
+.td_num2, th.td_num2 { width: 65px !important; text-align: center !important; color: #64748b !important; }
+
+/* 우측 상단 버튼들 간격 정돈 */
+#bo_btn_top, .bo_btn_top {
+    display: flex !important;
+    gap: 8px !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    margin-bottom: 12px !important;
+}
+#bo_btn_top a, #bo_btn_top button, .bo_btn_top a {
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 6px 12px !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    border: 1px solid #e2e8f0 !important;
+    background: #fff !important;
+    color: #334155 !important;
+    text-decoration: none !important;
+}
+</style>
+
+
+<style>
+/* 게시판 테이블 구조 및 세로 늘어짐 방지 */
+.tbl_head01 table, #bo_list table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    table-layout: auto !important;
+}
+
+.tbl_head01 th, .tbl_head01 td, #bo_list th, #bo_list td {
+    white-space: nowrap !important;
+    padding: 12px 14px !important;
+    vertical-align: middle !important;
+}
+
+/* 제목 영역만 가로폭을 채우고 일반 줄바꿈 허용 */
+.tbl_head01 td.td_subject, #bo_list td.td_subject {
+    white-space: normal !important;
+    width: 100% !important;
+    min-width: 260px !important;
+}
+
+/* 주요 컬럼 너비 및 가운데 정렬 */
+.td_chk, th.td_chk { width: 44px !important; text-align: center !important; }
+.td_num, th.td_num { width: 64px !important; text-align: center !important; }
+.td_name, th.td_name { width: 120px !important; text-align: center !important; }
+.td_date, th.td_date { width: 95px !important; text-align: center !important; }
+.td_num2, th.td_num2 { width: 60px !important; text-align: center !important; }
+
+/* 체크박스 숨김 텍스트가 노출되어 세로로 깨지는 현상 방지 */
+.sound_only {
+    display: none !important;
+}
+</style>
+
 {% extends "base.html" %}
 {% if board.bo_use_sideview %}
     {% import "/sideview/macros.html" as sideview %}
@@ -89,9 +198,8 @@
                     </ul>
                 </li>
                 <li>
-                    <a href="{{ url_for('board_form', bo_table=board.bo_table) }}" class="btn_admin btn" title="관리자">
-                        <i class="fa fa-cog fa-spin fa-fw"></i>
-                        <span class="blind">관리자</span>
+                    <a href="{{ url_for('board_form', bo_table=board.bo_table) }}" class="btn_b01 btn btn_admin" title="관리자">
+                        <i class="fa fa-cog"></i> 관리자
                     </a>
                 </li>
                 {% endif %}
@@ -393,8 +501,8 @@
             <ul>
                 {% if is_admin %}
                 <li>
-                    <a href="{{ url_for('board_form', bo_table=board.bo_table) }}" class="btn_admin btn" title="관리자">
-                        <i class="fa fa-cog fa-spin fa-fw"></i><span class="blind">관리자</span>
+                    <a href="{{ url_for('board_form', bo_table=board.bo_table) }}" class="btn_b01 btn btn_admin" title="관리자">
+                        <i class="fa fa-cog"></i> 관리자
                     </a>
                 </li>
                 {% endif %}
