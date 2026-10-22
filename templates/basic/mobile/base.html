@@ -198,3 +198,68 @@
 
 </script>
 {% endblock body_html %}
+
+<!-- 유튜브 URL 자동 반응형 플레이어 변환 -->
+<style>
+.yt-auto-container {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    padding-bottom: 56.25%; /* 16:9 비율 유지 */
+    height: 0;
+    margin: 16px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #000;
+}
+.yt-auto-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+</style>
+<script>
+window.addEventListener("DOMContentLoaded", function() {
+    var ytRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:[&?][^\s<"']*)?/i;
+
+    // 1. <a> 태그로 감싸진 링크 치환
+    var links = document.querySelectorAll("a[href*=\"youtube.com\"], a[href*=\"youtu.be\"]");
+    links.forEach(function(a) {
+        var href = a.getAttribute("href") || "";
+        var match = href.match(ytRegex);
+        if (match && match[1]) {
+            var div = document.createElement("div");
+            div.className = "yt-auto-container";
+            div.innerHTML = "<iframe src=\"https://www.youtube.com/embed/" + match[1] + "\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>";
+            a.parentNode.replaceChild(div, a);
+        }
+    });
+
+    // 2. 일반 텍스트 노드로 노출된 순수 URL 치환
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+    var targetNodes = [];
+    while (walker.nextNode()) {
+        var node = walker.currentNode;
+        if (node.parentElement && ["SCRIPT", "STYLE", "TEXTAREA", "INPUT"].indexOf(node.parentElement.tagName) === -1) {
+            if (ytRegex.test(node.nodeValue)) {
+                targetNodes.push(node);
+            }
+        }
+    }
+
+    targetNodes.forEach(function(node) {
+        var val = node.nodeValue;
+        var match = val.match(ytRegex);
+        if (match && match[1]) {
+            var span = document.createElement("span");
+            span.innerHTML = val.replace(ytRegex, function(m, vid) {
+                return "<div class=\"yt-auto-container\"><iframe src=\"https://www.youtube.com/embed/" + vid + "\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe></div>";
+            });
+            node.parentNode.replaceChild(span, node);
+        }
+    });
+});
+</script>

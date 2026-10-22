@@ -222,8 +222,72 @@
         <div id="article_contents" class="{{ request.state.editor }}">
             {{ write.wr_content|set_image_width(board_config.image_width)|url_auto_link(request)|safe }}
         </div>
+        <!-- 유튜브 반응형 안전 치환기 -->
+        <style>
+        .yt-frame-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            padding-bottom: 56.25%; /* 16:9 비율 유지 */
+            height: 0;
+            margin: 16px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #000;
+        }
+        .yt-frame-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+        </style>
+        <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var box = document.getElementById("article_contents");
+            if (!box) return;
 
-        {{ board_config.get_member_signature(write.mb_id) }}
+            var ytIdRegex = /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i;
+
+            function createPlayer(vid) {
+                var div = document.createElement("div");
+                div.className = "yt-frame-container";
+                div.innerHTML = '<iframe src="https://www.youtube.com/embed/' + vid + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+                return div;
+            }
+
+            // 1. url_auto_link에 의해 생성된 <a> 태그들을 DOM 차원에서 직접 탐색 및 교체
+            var links = box.querySelectorAll("a");
+            links.forEach(function(a) {
+                var url = a.getAttribute("href") || a.innerText || "";
+                var match = url.match(ytIdRegex);
+                if (match && match[1]) {
+                    var player = createPlayer(match[1]);
+                    // 부모 노드에서 해당 <a> 태그를 플레이어 컨테이너로 교체
+                    if (a.parentNode) {
+                        a.parentNode.replaceChild(player, a);
+                    }
+                }
+            });
+
+            // 2. 텍스트로 박혀 있는 <iframe ...> 앞뒤 찌꺼기 텍스트 정리
+            var walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT, null, false);
+            var removeNodes = [];
+            while (walker.nextNode()) {
+                var node = walker.currentNode;
+                if (/&lt;iframe|<\/?iframe|allowfullscreen|accelerometer/i.test(node.nodeValue)) {
+                    removeNodes.push(node);
+                }
+            }
+            removeNodes.forEach(function(n) {
+                n.nodeValue = "";
+            });
+        });
+        </script>
+
+                        {{ board_config.get_member_signature(write.mb_id) }}
 
         {% if board.bo_use_good or board.bo_use_nogood %}
         <div id="article_react">

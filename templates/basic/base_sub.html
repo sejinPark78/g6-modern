@@ -33,11 +33,164 @@ const g6_shop_url = "{{ request.base_url }}shop";
 {% if request.state.config -%}
     {{ request.state.config.cf_add_script|safe -}}
 {% endif -%}
+
+<!-- 모바일 에디터 팝업 중앙 정렬 & 사진 회전(EXIF) 방지 -->
+<style>
+/* 1. 스마트폰 촬영 사진 EXIF Orientation 반영 */
+img, .toastui-editor-contents img, .view-content img {
+    image-orientation: from-image !important;
+}
+
+/* 2. 모바일 화면에서 에디터 팝업(이미지/링크 등) 정중앙 모달화 */
+@media (max-width: 768px) {
+    .toastui-editor-popup,
+    .tui-popup-wrapper {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 88% !important;
+        max-width: 340px !important;
+        box-sizing: border-box !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+        z-index: 999999 !important;
+        margin: 0 !important;
+    }
+
+    .toastui-editor-popup .toastui-editor-popup-body {
+        padding: 14px !important;
+    }
+
+    .toastui-editor-popup input[type="text"],
+    .toastui-editor-popup input[type="file"] {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+}
+</style>
+
+
+<style>
+/* TOAST UI Editor 내부(위지윅, 마크다운 미리보기 전체) EXIF 회전 강제 적용 */
+.toastui-editor-contents img,
+.toastui-editor-defaultUI img,
+.toastui-editor img,
+.ProseMirror img,
+.tui-editor-contents img,
+.write-content img,
+#wr_content img,
+img {
+    image-orientation: from-image !important;
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+}
+</style>
+
 </head>
 <body>
 {% block body_html %}
     {% block content %}
     {% endblock content %}
 {% endblock body_html %}
+
+<!-- 유튜브 링크 자동 플레이어 변환 스크립트 & 반응형 스타일 -->
+<style>
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 비율 유지 */
+    height: 0;
+    overflow: hidden;
+    max-width: 100%;
+    margin: 15px 0;
+    border-radius: 8px;
+    background-color: #000;
+}
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // 게시글 본문 영역 지정 (.view-content, #bo_v_con 등 그누보드 본문 컨테이너)
+    var contentAreas = document.querySelectorAll(".view-content, #bo_v_con, .toastui-editor-contents");
+    
+    // 유튜브 URL 정규표현식
+    var ytRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:[&?][^\s<]*)?/gi;
+
+    contentAreas.forEach(function(area) {
+        // 이미 iframe이 들어있는 경우 컨테이너로 감싸 반응형 처리
+        var iframes = area.querySelectorAll("iframe[src*="youtube.com"], iframe[src*="youtube-nocookie.com"]");
+        iframes.forEach(function(iframe) {
+            if (!iframe.parentElement.classList.contains("video-container")) {
+                var wrapper = document.createElement("div");
+                wrapper.className = "video-container";
+                iframe.parentNode.insertBefore(wrapper, iframe);
+                wrapper.appendChild(iframe);
+            }
+        });
+
+        // 본문 텍스트 내의 일반 유튜브 링크를 iframe 플레이어로 자동 변환
+        area.innerHTML = area.innerHTML.replace(ytRegex, function(match, videoId) {
+            return "<div class="video-container"><iframe src="https://www.youtube.com/embed/" + videoId + "" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>";
+        });
+    });
+});
+</script>
+
+
+<!-- 유튜브 URL 자동 반응형 플레이어 변환 -->
+<style>
+.yt-video-wrap {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 비율 유지 */
+    height: 0;
+    overflow: hidden;
+    max-width: 100%;
+    margin: 16px 0;
+    border-radius: 8px;
+    background-color: #000;
+}
+.yt-video-wrap iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var contentContainers = document.querySelectorAll("#bo_v_con, .view-content, .toastui-editor-contents");
+    
+    // 일반 watch 주소, 단축 주소(youtu.be), 쇼츠(shorts), 임베드(embed) 대응
+    var ytRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:[&?][^\s<"']*)?/gi;
+
+    contentContainers.forEach(function(box) {
+        // 1. 이미 iframe 형태로 들어온 유튜브 태그 반응형 wrapper 처리
+        var iframes = box.querySelectorAll("iframe[src*="youtube.com"], iframe[src*="youtube-nocookie.com"]");
+        iframes.forEach(function(el) {
+            if (!el.parentElement.classList.contains("yt-video-wrap")) {
+                var wrap = document.createElement("div");
+                wrap.className = "yt-video-wrap";
+                el.parentNode.insertBefore(wrap, el);
+                wrap.appendChild(el);
+            }
+        });
+
+        // 2. 텍스트로 입력된 링크 변환 (앵커 태그 내 링크 포함)
+        box.innerHTML = box.innerHTML.replace(ytRegex, function(fullMatch, vid) {
+            return "<div class="yt-video-wrap"><iframe src="https://www.youtube.com/embed/" + vid + "" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>";
+        });
+    });
+});
+</script>
+
 </body>
 </html>

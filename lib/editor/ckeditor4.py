@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 
 from fastapi import APIRouter, File, Request, UploadFile
-from PIL import Image
+from PIL import Image, ImageOps
 from starlette.responses import JSONResponse
 
 from core.models import Config
@@ -58,6 +58,7 @@ async def image_upload(request: Request, upload: UploadFile = File(...)):
 
         try:
             image: Image.Image = Image.open(upload.file)
+            image = ImageOps.exif_transpose(image)
             if _IS_IMAGE_RESIZE:
                 width, height = image.size
                 size_result = calculator_image_resize(
