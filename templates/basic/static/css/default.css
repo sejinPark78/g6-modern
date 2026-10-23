@@ -219,7 +219,7 @@ html.remodal-is-locked {overflow-y:scroll !important}
 #header_search form { position:relative; padding-right:40px }
 #header_search #sch_stx { width:100%; height:38px; margin-right:40px; background:#00000022; color: #fff; border: none; padding-left: 10px; border-radius: 3px 0px 0px 3px; }
 #header_search #sch_stx::placeholder { color: #fff; }
-#header_search #sch_submit { position:absolute; top:0; right:0; width:40px; height:38px; border:0; border-radius:0px 3px 3px 0px; cursor:pointer; color:#fff; background:#00000022; font-size:1.5rem }
+#header_search #sch_submit { position:absolute; top:0; right:0; width:55px; white-space:nowrap; height:38px; border:0; border-radius:0px 3px 3px 0px; cursor:pointer; color:#fff; background:#00000022; font-size:1.5rem }
 
 #hd_define { float:left }
 #hd_define:after { display:block; visibility:hidden; clear:both; content:"" }
@@ -653,7 +653,7 @@ a.btn_admin,.btn_admin { display:inline-block; color:#d13f4a; text-decoration:no
 #current_connect li:first-child { border-top:var(--border) }
 #current_connect .crt_num { float:left; line-height:45px; margin-right:20px; color:#777; font-weight:bold }
 #current_connect .crt_profile { float:left; margin-right:20px; line-height:45px }
-#current_connect .crt_profile > img { width:45px; height:45px; border-radius:50% }
+#current_connect .crt_profile > img { width:55px; white-space:nowrap; height:45px; border-radius:50% }
 #current_connect .crt_info { float:left; margin-top:5px }
 #current_connect .crt_name { display:block; color: var(--fontColor); }
 #current_connect .sv_member { font-weight:bold; line-height:20px; font-size:1.4rem }
@@ -700,7 +700,7 @@ a.btn_admin,.btn_admin { display:inline-block; color:#d13f4a; text-decoration:no
 .pic_lt .lat_title { display:block; margin:0; padding:0; line-height:45px; font-size:1.4rem; color:#253dbe }
 .pic_lt .lat_title a { color:var(--fontColor); display:inline-block; position:relative }
 
-.pic_lt .lt_more { position:absolute; top:11px; right:10px; display:block; width:25px; line-height:25px; color:#aaa; border-radius:3px; text-align:center; }
+.pic_lt .lt_more { position:absolute; top:11px; right:10px; display:block; width:55px; white-space:nowrap; line-height:25px; color:#aaa; border-radius:3px; text-align:center; }
 .pic_lt .lt_more:hover { color:#777 }
 .pic_lt ul:after { display:block; visibility:hidden; clear:both; content:"" }
 .pic_lt ul { margin: 0 -10px }
@@ -727,7 +727,7 @@ a.btn_admin,.btn_admin { display:inline-block; color:#d13f4a; text-decoration:no
 .pic_lt .empty_li:before { background:none; padding:0 }
 
 .pic_lt .lt_cmt { background:#e9eff5; color:var(--primaryColor); font-size:1.1rem; height:16px; line-height:16px; padding:0 5px; border-radius:3px; vertical-align:middle }
-.pic_lt .lt_more { position:absolute; top:11px; right:0; display:block; width:40px; line-height:25px; color:var(--primaryColor); border-radius:3px; text-align:center }
+.pic_lt .lt_more { position:absolute; top:11px; right:0; display:block; width:55px; white-space:nowrap; line-height:25px; color:var(--primaryColor); border-radius:3px; text-align:center }
 .pic_lt .lt_more:hover { color:#777 }
 
 /* latest_list.css */
@@ -737,7 +737,7 @@ a.btn_admin,.btn_admin { display:inline-block; color:#d13f4a; text-decoration:no
 .pic_li_lt .lat_title a { color:var(--fontColor); display:inline-block; position:relative }
 .latest_top_wr .pic_li_lt:nth-child(3n+1) { clear: both!important }
 
-.pic_li_lt .lt_more { position:absolute; top:11px; right:10px; display:block; width:25px; line-height:25px; color:#aaa; border-radius:3px; text-align:center }
+.pic_li_lt .lt_more { position:absolute; top:11px; right:10px; display:block; width:55px; white-space:nowrap; line-height:25px; color:#aaa; border-radius:3px; text-align:center }
 .pic_li_lt .lt_more:hover { color:#777 }
 .pic_li_lt ul:after { display:block; visibility:hidden; clear:both; content:"" }
 .pic_li_lt li { border-bottom:var(--border); margin-bottom:10px; color: var(--fontColor); }
@@ -764,7 +764,7 @@ a.btn_admin,.btn_admin { display:inline-block; color:#d13f4a; text-decoration:no
 .pic_li_lt .empty_li:before { background:none; padding:0 }
 
 .pic_li_lt .lt_cmt { background:#e9eff5; color:var(--primaryColor); font-size:1.1rem; height:16px; line-height:16px; padding:0 5px; border-radius:3px; vertical-align:middle }
-.pic_li_lt .lt_more { position:absolute; top:11px; right:10px; display:block; width:40px; line-height:25px; color:var(--primaryColor); border-radius:3px; text-align:center }
+.pic_li_lt .lt_more { position:absolute; top:11px; right:10px; display:block; width:55px; white-space:nowrap; line-height:25px; color:var(--primaryColor); border-radius:3px; text-align:center }
 .pic_li_lt .lt_more:hover { color:#777 }
 
 /* latest_notice.css */
@@ -806,7 +806,7 @@ a.btn_admin,.btn_admin { display:inline-block; color:#d13f4a; text-decoration:no
 .lat .empty_li:before { background:none; padding:0 }
 
 .lat .lt_cmt { background:#e9eff5; color:var(--primaryColor); font-size:1.1rem; height:16px; line-height:16px; padding:0 5px; border-radius:3px; vertical-align:middle }
-.lat .lt_more { position:absolute; top:11px; right:0; display:block; width:40px; line-height:25px; color:var(--primaryColor); border-radius:3px; text-align:center }
+.lat .lt_more { position:absolute; top:11px; right:0; display:block; width:55px; white-space:nowrap; line-height:25px; color:var(--primaryColor); border-radius:3px; text-align:center }
 .lat .lt_more:hover { color:#777 }
 
 /* main_list.css */
@@ -1089,7 +1089,7 @@ p input:valid + label::after { width:100%; transform:translateX(0); }
 .memo_view_li .profile_img img {display:none}
 .memo_from {position:relative;background:#fff;border-bottom:1px solid #ececec;padding:15px 20px}
 .memo_from li {float:left}
-.memo_from li.memo_profile img {width:40px;height:40px;border-radius:50%}
+.memo_from li.memo_profile img {width:55px; white-space:nowrap;height:40px;border-radius:50%}
 .memo_from li:first-child {margin-right:10px}
 .memo_from li.memo_view_nick {width:80%}
 .memo_from li.memo_view_nick a {font-weight:bold !important}
@@ -1182,7 +1182,7 @@ p input:valid + label::after { width:100%; transform:translateX(0); }
 #formmail textarea {height:100px}
 #formmail .formmail_flie {position:relative}
 #formmail .formmail_flie .file_wr {border:1px solid #ccc;background:#fff;color:#000;vertical-align:middle;border-radius:3px;padding:5px;height:40px;margin:0}
-#formmail .lb_icon {position:absolute;top:1px;left:1px;border-radius:3px 0 0 3px;height:38px;line-height:38px;width:40px;background:#fff;text-align:center;color:#b2b2b2}
+#formmail .lb_icon {position:absolute;top:1px;left:1px;border-radius:3px 0 0 3px;height:38px;line-height:38px;width:55px; white-space:nowrap;background:#fff;text-align:center;color:#b2b2b2}
 #formmail .frm_file {padding-left:50px}
 #formmail .frm_info {color:#3497d9;font-size:1.1rem}
 
