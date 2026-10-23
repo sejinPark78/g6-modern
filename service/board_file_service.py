@@ -1,3 +1,4 @@
+from PIL import Image, ImageOps
 """게시판 파일 관련 기능을 제공하는 서비스 모듈입니다."""
 import os
 import shutil
@@ -281,8 +282,30 @@ class BoardFileService():
             file (UploadFile): 업로드 파일
         """
         if file and file.filename:
-            with open(f"{directory}/{filename}", "wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
+            dest_path = f"{directory}/{filename}"
+            # 이미지 파일인 경우 EXIF 회전(스마트폰 세로 사진) 자동 보정
+            ext = filename.split(".")[-1].lower() if "." in filename else ""
+            if ext in ["jpg", "jpeg", "png", "webp"]:
+                try:
+                    file.file.seek(0)
+                    with Image.open(file.file) as img:
+                        # EXIF 회전 메타데이터를 실제 픽셀 방향에 적용
+                        transposed = ImageOps.exif_transpose(img)
+                        # 원본 포맷 유지하여 저장 (품질 유지)
+                        fmt = img.format if img.format else "JPEG"
+                        save_kwargs = {"format": fmt}
+                        if fmt.upper() in ["JPEG", "JPG"]:
+                            save_kwargs["quality"] = 95
+                            save_kwargs["optimize"] = True
+                        transposed.save(dest_path, **save_kwargs)
+                    file.file.seek(0)
+                except Exception as e:
+                    file.file.seek(0)
+                    with open(dest_path, "wb") as buffer:
+                        shutil.copyfileobj(file.file, buffer)
+            else:
+                with open(dest_path, "wb") as buffer:
+                    shutil.copyfileobj(file.file, buffer)
 
     def move_file(self, origin: str, target: str):
         """파일을 이동한다.

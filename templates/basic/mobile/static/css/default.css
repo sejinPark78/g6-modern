@@ -1454,3 +1454,32 @@ html.remodal-is-locked {overflow-y:scroll !important}
 @media ( max-width: 1100px ) {
     .elip { max-width: 100px; }
 }
+/* 다크모드 방문자 집계 글자색 보정 (모바일) */
+body.dark #aside #visit,
+body.dark #aside #visit h2,
+body.dark #aside #visit span,
+body.dark #aside #visit strong,
+body.dark #aside #visit li {
+    color: #e2e8f0 !important;
+}
+
+body.dark #aside #visit h2 {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+/* 모바일 html[color-theme="dark"] 전용 방문자 집계 글자색 */
+html[color-theme="dark"] #aside #visit,
+html[color-theme="dark"] #aside #visit h2,
+html[color-theme="dark"] #aside #visit span,
+html[color-theme="dark"] #aside #visit strong,
+html[color-theme="dark"] #aside #visit li {
+    color: #e2e8f0 !important;
+}
+
+html[color-theme="dark"] #aside #visit h2 {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+html[color-theme="dark"] #aside #visit li span::before {
+    background-color: #60a5fa !important;
+}

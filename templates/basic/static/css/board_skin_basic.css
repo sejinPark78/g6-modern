@@ -21,11 +21,11 @@
     .bo_list .list_table .table_check { width:40px; text-align:center; }
     .bo_list .list_table .table_wrid { width:40px; text-align:center; }
     .bo_list .list_table .table_category { width:100px; text-align:center; }
-    .bo_list .list_table .table_writer { width:100px; }
+    .bo_list .list_table .table_writer { width:140px; }
     .bo_list .list_table .table_hit { width: 80px; text-align:center; }
     .bo_list .list_table .table_good,
     .bo_list .list_table .table_nogood { width: 50px; text-align: center; }
-    .bo_list .list_table .table_datetime { width: 80px; text-align: center; }
+    .bo_list .list_table .table_datetime { width: 105px; text-align: center; }
     .bo_list .list_table .table_status { width: 80px; text-align: center; }
 }
 
